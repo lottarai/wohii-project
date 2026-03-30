@@ -1,0 +1,18 @@
+{
+  "name": "woh2-projekti",
+  "version": "1.0.0",
+  "description": "WOH 2 project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["express","node.js","backend","api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
+
+
