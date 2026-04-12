@@ -1,0 +1,19 @@
+meta {
+  name: Edit question
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "question": "test",
+    "answer": "test2",
+    "keywords": ["uef"]
+  }
+}
