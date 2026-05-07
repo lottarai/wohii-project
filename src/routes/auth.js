@@ -8,7 +8,7 @@ const SECRET = process.env.JWT_SECRET;
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
     const { email, password, name } = req.body;
-    if (!email ||  !password || !name ) {
+    if (!email ||  !password || !name) {
         return res.status(400).json({ error: "email, password and name are required" });
     }
 
@@ -40,9 +40,9 @@ res.status(201).json({
 
 // POSt /api/auth/login
 router.post("/login", async (req, res) => {
-    const { email, password, name } = req.body;
-    if (!email ||  !password || !name ) {
-        return res.status(400).json({ error: "email, password and name are required" });
+    const { email, password } = req.body;
+    if (!email ||  !password) {
+        return res.status(400).json({ error: "email and password are required" });
     }
 
     // Find user

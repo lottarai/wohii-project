@@ -7,25 +7,25 @@ const questions = [
       id: 1,
       questionTitle: "What is the capital of Finland?",
       answer: "Helsinki",
-      keywords: ["http", "web"]
+      keywords: ["finland", "capital"]
     },
     {
       id: 2,
       questionTitle: "What is 7+4?",
       answer: "11",
-      keywords: ["http", "api"]
+      keywords: ["addition", "math"]
     },
     {
       id: 3,
-      questionTitle: "How many days are in a year?",
+      questionTitle: "How many days are in a year?",s
       answer: "365",
-      keywords: ["javascript", "backend"]
+      keywords: ["year", "trivial"]
     },
     {
       id: 4,
       questionTitle: "When is Finnish independence day?",
       answer: "6.12.",
-      keywords: ["database", "backend"]
+      keywords: ["finland", "trivial"]
     }
   ];
 
