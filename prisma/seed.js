@@ -17,7 +17,7 @@ const questions = [
     },
     {
       id: 3,
-      questionTitle: "How many days are in a year?",s
+      questionTitle: "How many days are in a year?",
       answer: "365",
       keywords: ["year", "trivial"]
     },

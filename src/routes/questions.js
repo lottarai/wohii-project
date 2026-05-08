@@ -32,11 +32,10 @@ function formatQuestion(question) {
     ...question,
     keywords: question.keywords.map((k) => k.name),
     userName: question.user ? question.user.name : null,
-    liked: question.likes && question.likes.length > 0,
-    likeCount: question._count?.likes ?? 0,
+    solved: question.attempts && question.attempts.some(a => a.correct),
     user: undefined,
     _count: undefined,
-    likes: undefined
+    attempts: undefined
   };
 }
 
@@ -60,8 +59,7 @@ router.get("/", async (req, res) => {
         include: {
             keywords: true,
             user: true,
-            likes: {where: {userId: req.user.userId}, take: 1},
-            _count: { select: {likes: true} }
+            attempts: {where: {userId: req.user.userId}}
         },
         orderBy: {id: "asc"},
         skip,
@@ -85,8 +83,7 @@ router.get("/:questionId", async (req, res) => {
         include: {
             keywords: true,
             user: true,
-            likes: {where: {userId: req.user.userId}, take: 1},
-            _count: {select: {likes: true} }}
+            attempts: {where: {userId: req.user.userId}}}
     });
     
     if (!question) {
@@ -115,7 +112,11 @@ router.post("/", upload.single("image"), async (req, res) => {
                     where: { name: kw}, create: { name: kw},
                 })),},
         },
-        include: { keywords: true},
+        include: {
+            keywords: true,
+            user: true,
+            attempts: true
+        },
     });
 
     res.status(201).json(formatQuestion(newQuestion));
@@ -150,7 +151,11 @@ router.put("/:questionId", isOwner, upload.single("image"), async (req, res) => 
             })),
         },
         },
-        include: { keywords: true, user: true },
+        include: {
+            keywords: true,
+            user: true,
+            attempts: true
+        },
     });
   res.json(formatQuestion(updatedQuestion));
 });
@@ -164,8 +169,8 @@ router.delete("/:questionId", isOwner, async (req, res) => {
         include: {
             keywords: true,
             user: true,
-            likes: {where: {userId: req.user.userId}, take: 1},
-            _count: {select: {likes: true}}
+            attempts: {where: {userId: req.user.userId}, take: 1},
+            _count: {select: {attempts: true}}
 }});
 
     if (!question) {
@@ -182,53 +187,43 @@ router.delete("/:questionId", isOwner, async (req, res) => {
 });
 
 
-// POST /api/questions/:questionId/like
-router.post("/:questionId/like", async (req, res) => {
+// POST /api/questions/:questionId/play
+router.post("/:questionId/play", async (req, res) => {
     const questionId = Number(req.params.questionId);
+    const { answer } = req.body;
+
     const question = await prisma.question.findUnique({where: {id: questionId}});
     if(!question) {
         return res.status(404).json({ message: "Question not found"})
     }
 
-    const like = await prisma.like.upsert({
-        where: {userId_questionId: {userId: req.user.userId, questionId}},
-        update: {},
-        create: {userId: req.user.userId, questionId}
-    });
-
-    const likeCount = await prisma.like.count({where: {questionId}})
+    const correct = answer.trim().toLowerCase() === question.answer.trim().toLowerCase();
+    const attempt = await prisma.attempt.upsert({
+        where: {
+            userId_questionId: {
+                userId: req.user.userId,
+                questionId
+            }
+        },
+        update: {
+            answer,
+            correct
+        },
+        create: {
+            answer,
+            correct,
+            userId: req.user.userId,
+            questionId
+        }
+    })
 
     res.status(201).json({
-    id: like.id,
-    questionId,
-    liked: true,
-    likeCount,
-    createdAt: like.createdAt
+    id: attempt.id,
+        questionId,
+        correct,
+        correctAnswer: question.answer
     })
 });
-
-// Delete /api/questions/:questionId/Like
-router.delete("/:questionId/like", async (req, res) => {
-    const questionId = Number(req.params.questionId);
-    const question = await prisma.question.findUnique({where: {id: questionId}});
-    if(!question) {
-        return res.status(404).json({ message: "Question not found"})
-    }
-
-    const like = await prisma.like.deleteMany({
-        where: {userId: req.user.userId, questionId}
-    });
-
-    const likeCount = await prisma.like.count({where: {questionId}})
-
-    res.status(201).json({
-    questionId,
-    liked: false,
-    likeCount
-    })
-});
-
-
 
 
 module.exports = router;
